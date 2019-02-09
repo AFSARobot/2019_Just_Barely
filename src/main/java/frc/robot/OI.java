@@ -33,4 +33,7 @@ public class OI {
     public boolean get_FullDriveToggle() {
         return spaghetticon.getRawButtonPressed(7);
     }
+    public boolean get_HoldAngleDrive() {
+        return spaghetticon.getRawButtonPressed(8);
+    }
 }

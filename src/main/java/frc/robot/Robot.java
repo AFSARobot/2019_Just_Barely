@@ -29,20 +29,19 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private static SlideSteer strafeDrive;
-  private static Grab grabber = new Grab(new WPI_TalonSRX(8)); //Adjust for actual ID
   private static OI Operation = new OI();
   private static Rangefinder rangeFinder = new Rangefinder(0);
   private static Lift elevator = new Lift(new WPI_TalonSRX(5));
   private static Ramp sharpIncline = new Ramp(new WPI_TalonSRX(6), new WPI_TalonSRX(7));
   private static boolean InFullDriveMode;
   private static boolean HoldAngleDrive;
-  private static WPI_TalonSRX s1 = new WPI_TalonSRX(1),
-    s2 = new WPI_TalonSRX(2),
-    s3 = new WPI_TalonSRX(3),
-    s4 = new WPI_TalonSRX(4);
-  private Servo GrabServo;
+  private static WPI_TalonSRX s1 = new WPI_TalonSRX(1), s2 = new WPI_TalonSRX(2), s3 = new WPI_TalonSRX(3),
+      s4 = new WPI_TalonSRX(4);
+  private Servo GrabServoLeft, GrabServoRight;
+  private static GrabWithServo grabber;
   private static PigeonIMU pigeon = new PigeonIMU(s1);
-//WPI_TalonSRX
+
+  // WPI_TalonSRX
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
@@ -56,11 +55,12 @@ public class Robot extends TimedRobot {
     HoldAngleDrive = false;
     strafeDrive = new SlideSteer(s1, s2, s3, s4);
     CameraServer.getInstance().startAutomaticCapture();
-    GrabServo = new Servo(5);
+    GrabServoLeft = new Servo(5);
+    GrabServoRight = new Servo(6);
+    grabber = new GrabWithServo(GrabServoLeft, GrabServoRight);
     pigeon.setYaw(0);
     pigeon.setFusedHeading(0);
   }
-
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for
@@ -97,7 +97,7 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-    
+
     pigeon.setYaw(0);
     pigeon.setFusedHeading(0);
   }
@@ -123,50 +123,46 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    // Drive System
+    if (Operation.get_FullDriveToggle()) {
+      InFullDriveMode = !InFullDriveMode;
+    }
+    if (Operation.get_HoldAngleDrive()) {
+      HoldAngleDrive = !HoldAngleDrive;
+    }
     if (InFullDriveMode == true) {
       strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Operation.get_Zaxis());
       SmartDashboard.putString("Drive Mode", "Full Drive");
-    }
-    else if (HoldAngleDrive == true) {
+    } else if (HoldAngleDrive == true) {
       double[] ypr = new double[3];
       pigeon.getYawPitchRoll(ypr);
       Double Pigeonface = ypr[0];
       Double Adjust = Pigeonface;
       if (Pigeonface > 180) {
-      Adjust = 360 - Pigeonface; 
+        Adjust = 360 - Pigeonface;
       }
-
       strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Adjust);
-      SmartDashboard.putString("Drive Mode","Hold Angle");
-    }
-    else if (Operation.get_Turnbutton()) {
+      SmartDashboard.putString("Drive Mode", "Hold Angle");
+    } else if (Operation.get_Turnbutton()) {
       strafeDrive.AntiStrafe(Operation.get_Yaxis());
       SmartDashboard.putString("Drive Mode", "Anti-Strafe");
     } else {
-       strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
-       SmartDashboard.putString("Drive Mode", "Strafe");
+      strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
+      SmartDashboard.putString("Drive Mode", "Strafe");
     }
-    
-    if (Operation.get_GrabButton()){
-      if (grabber.currentState == Grab.State.released){
+
+    // Grabber system
+    if (Operation.get_GrabButton()) {
+      if (grabber.currentState == GrabWithServo.State.released) {
         grabber.collect();
-      }
-      else{
+      } else {
         grabber.release();
       }
     }
-    else{
-      grabber.operate();
-    }
-    if (Operation.get_FullDriveToggle()) {
-    InFullDriveMode = !InFullDriveMode;
-    }
-    if (Operation.get_Slider()> 0 && Operation.get_Slider()< 1) {
-    GrabServo.set(Operation.get_Slider());
-    
-  }
-    if (Operation.get_HoldAngleDrive()) {
-      HoldAngleDrive = !HoldAngleDrive;
+    if (Operation.get_Slider() > 0 && Operation.get_Slider() < 1) {
+      GrabServoLeft.set(Operation.get_Slider());
+      GrabServoRight.set(Operation.get_Slider());
+
     }
   }
 
