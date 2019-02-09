@@ -9,7 +9,7 @@ public class GrabWithServo {
     private Servo servoLeft, servoRight;
 
     public enum State {
-        grabbed, released, grabbing, releasing
+        grabbed, released
     };
 
     public State currentState = State.released;
@@ -22,14 +22,14 @@ public class GrabWithServo {
     }
 
     public void collect() {
-        currentState = State.grabbing;
-        servoLeft.set(prefs.getDouble("GrabAngleCollectLeft", 81));
-        servoLeft.set(prefs.getDouble("GrabAngleCollectRight", 99));
+        currentState = State.grabbed;
+        servoLeft.set(prefs.getDouble("GrabAngleCollectLeft", 0.5));
+        servoRight.set(prefs.getDouble("GrabAngleCollectRight", 0.5));
     }
 
     public void release() {
-        currentState = State.releasing;
-        servoLeft.set(prefs.getDouble("GrabAngleCollectLeft", 90));
-        servoLeft.set(prefs.getDouble("GrabAngleCollectRight", 90));
+        currentState = State.released;
+        servoLeft.set(prefs.getDouble("GrabAngleReleaseLeft", 0.5));
+        servoRight.set(prefs.getDouble("GrabAngleReleaseRight", 0.5));
     }
 }

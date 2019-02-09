@@ -6,15 +6,15 @@ public class OI {
     public Joystick spaghetticon = new Joystick(0);
 
     public double get_Yaxis() {
-        return spaghetticon.getY();
+        return DeadBits(spaghetticon.getY());
     }
 
     public double get_Xaxis() {
-        return spaghetticon.getX();
+        return DeadBits(spaghetticon.getX());
     }
 
     public double get_Zaxis() {
-        return spaghetticon.getZ();
+        return DeadBits(spaghetticon.getZ());
     }
 
     public double get_Slider() {
@@ -35,5 +35,11 @@ public class OI {
     }
     public boolean get_HoldAngleDrive() {
         return spaghetticon.getRawButtonPressed(8);
+    }
+    private double DeadBits(double seb) {
+        if (seb < -0.1 || seb > 0.1) {
+            return seb;
+        }
+        return 0;
     }
 }

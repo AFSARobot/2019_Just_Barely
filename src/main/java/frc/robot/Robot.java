@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Servo;
 
 /**
@@ -40,7 +41,10 @@ public class Robot extends TimedRobot {
   private Servo GrabServoLeft, GrabServoRight;
   private static GrabWithServo grabber;
   private static PigeonIMU pigeon = new PigeonIMU(s1);
-
+  private static double Sickgains;
+  private static double Lethalgains;
+  private static double GraspAngle;
+  private static double rileyguy04;
   // WPI_TalonSRX
   /**
    * This function is run when the robot is first started up and should be used
@@ -56,10 +60,15 @@ public class Robot extends TimedRobot {
     strafeDrive = new SlideSteer(s1, s2, s3, s4);
     CameraServer.getInstance().startAutomaticCapture();
     GrabServoLeft = new Servo(5);
-    GrabServoRight = new Servo(6);
+    GrabServoRight = new Servo(4);
     grabber = new GrabWithServo(GrabServoLeft, GrabServoRight);
     pigeon.setYaw(0);
     pigeon.setFusedHeading(0);
+    Sickgains = Preferences.getInstance().getDouble("Turn Pgain", 1);
+    Lethalgains = Preferences.getInstance().getDouble("Turn Dgain", 1);
+    GraspAngle = 0;
+    rileyguy04 = Preferences.getInstance().getDouble("Twist-Turn Sensitivity", 1);
+
   }
 
   /**
@@ -78,6 +87,7 @@ public class Robot extends TimedRobot {
     double[] ypr = new double[3];
     pigeon.getYawPitchRoll(ypr);
     SmartDashboard.putNumber("Pigeon Yaw", ypr[0]);
+    SmartDashboard.putNumber("Target Angle", GraspAngle);
   }
 
   /**
@@ -136,11 +146,23 @@ public class Robot extends TimedRobot {
     } else if (HoldAngleDrive == true) {
       double[] ypr = new double[3];
       pigeon.getYawPitchRoll(ypr);
+      double[] Dps = new double[3];
+      pigeon.getRawGyro(Dps);
+      GraspAngle += Operation.get_Zaxis() * rileyguy04;
+      if (GraspAngle > 360) {
+        GraspAngle = 0;
+      }
+      if (GraspAngle < 0) {
+        GraspAngle = 360;
+      }
       Double Pigeonface = ypr[0];
-      Double Adjust = Pigeonface;
+      Double Adjust = Pigeonface - GraspAngle;
       if (Pigeonface > 180) {
         Adjust = 360 - Pigeonface;
       }
+      Adjust /= 180;
+      Adjust *= Sickgains;
+      Adjust -= Dps[2]*Lethalgains;
       strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Adjust);
       SmartDashboard.putString("Drive Mode", "Hold Angle");
     } else if (Operation.get_Turnbutton()) {
