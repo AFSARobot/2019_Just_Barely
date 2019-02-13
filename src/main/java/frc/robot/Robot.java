@@ -128,6 +128,12 @@ public class Robot extends TimedRobot {
     }
   }
 
+  @Override
+  public void teleopInit() {
+    super.teleopInit();
+    GraspAngle = 0;
+  }
+
   /**
    * This function is called periodically during operator control.
    */
@@ -155,16 +161,27 @@ public class Robot extends TimedRobot {
       if (GraspAngle < 0) {
         GraspAngle = 360;
       }
-      Double Pigeonface = ypr[0];
-      Double Adjust = Pigeonface - GraspAngle;
+      double Pigeonface = ypr[0];
+      System.out.printf("Pigeon Yaw = %f\n", Pigeonface);
+      while (Pigeonface > 360) {
+        Pigeonface -= 360;
+      }
+      while (Pigeonface <0) {
+        Pigeonface += 360;
+      }
+      double Adjust = Pigeonface - GraspAngle;
       if (Pigeonface > 180) {
         Adjust = 360 - Pigeonface;
       }
+      //System.out.printf("Error Angle = %f\n", Adjust);
       Adjust /= 180;
       Adjust *= Sickgains;
-      Adjust -= Dps[2]*Lethalgains;
+      //Adjust -= Dps[2]*Lethalgains;
       strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Adjust);
       SmartDashboard.putString("Drive Mode", "Hold Angle");
+      //System.out.printf("Pigeonface = %f\n", Pigeonface);
+      //System.out.printf("GraspAngle = %f\n", GraspAngle);
+      //System.out.printf("Adjust = %f\n", Adjust);
     } else if (Operation.get_Turnbutton()) {
       strafeDrive.AntiStrafe(Operation.get_Yaxis());
       SmartDashboard.putString("Drive Mode", "Anti-Strafe");
