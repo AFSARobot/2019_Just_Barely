@@ -147,7 +147,7 @@ public class Robot extends TimedRobot {
       HoldAngleDrive = !HoldAngleDrive;
     }
     if (InFullDriveMode == true) {
-      strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Operation.get_Zaxis());
+      strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Operation.get_Zaxis() * rileyguy04);
       SmartDashboard.putString("Drive Mode", "Full Drive");
     } else if (HoldAngleDrive == true) {
       double[] ypr = new double[3];
@@ -171,7 +171,7 @@ public class Robot extends TimedRobot {
       }
       double Adjust = Pigeonface - GraspAngle;
       if (Pigeonface > 180) {
-        Adjust = 360 - Pigeonface;
+        Adjust = -360 + Pigeonface;
       }
       //System.out.printf("Error Angle = %f\n", Adjust);
       Adjust /= 180;
@@ -179,11 +179,13 @@ public class Robot extends TimedRobot {
       //Adjust -= Dps[2]*Lethalgains;
       strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Adjust);
       SmartDashboard.putString("Drive Mode", "Hold Angle");
+      SmartDashboard.putNumber("Adjust Output", Adjust);
+      SmartDashboard.putNumber("Adjusted Yaw", Pigeonface);
       //System.out.printf("Pigeonface = %f\n", Pigeonface);
       //System.out.printf("GraspAngle = %f\n", GraspAngle);
       //System.out.printf("Adjust = %f\n", Adjust);
     } else if (Operation.get_Turnbutton()) {
-      strafeDrive.AntiStrafe(Operation.get_Yaxis());
+      strafeDrive.AntiStrafe(Operation.get_Yaxis() * rileyguy04);
       SmartDashboard.putString("Drive Mode", "Anti-Strafe");
     } else {
       strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
@@ -202,6 +204,15 @@ public class Robot extends TimedRobot {
       GrabServoLeft.set(Operation.get_Slider());
       GrabServoRight.set(Operation.get_Slider());
 
+    }
+    if (Operation.get_RampUp()) {
+      sharpIncline.extend();
+    }
+    else if (Operation.get_RampDown()) {
+      sharpIncline.retract();
+    }
+    else {
+      sharpIncline.stopMotor();
     }
   }
 

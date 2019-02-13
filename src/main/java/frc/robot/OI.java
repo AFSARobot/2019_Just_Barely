@@ -42,4 +42,10 @@ public class OI {
         }
         return 0;
     }
+    public boolean get_RampDown() {
+        return spaghetticon.getRawButton(5);
+    }
+    public boolean get_RampUp() {
+        return spaghetticon.getRawButton(6);
+    }
 }
