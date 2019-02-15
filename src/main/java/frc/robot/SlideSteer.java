@@ -32,6 +32,9 @@ public class SlideSteer extends RobotDriveBase {
     public void AntiStrafe(double turn) {
         left_forward.set(turn);
         right_forward.set(-turn);
+        front_side.set(turn);
+        back_side.set(-turn);
+        
         feedWatchdog();
 
     }

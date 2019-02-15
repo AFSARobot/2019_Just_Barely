@@ -188,8 +188,16 @@ public class Robot extends TimedRobot {
       strafeDrive.AntiStrafe(Operation.get_Yaxis() * rileyguy04);
       SmartDashboard.putString("Drive Mode", "Anti-Strafe");
     } else {
-      strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
       SmartDashboard.putString("Drive Mode", "Strafe");
+      if (Operation.IsRight()) {
+      strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5));
+      }
+      else if (Operation.IsLeft()) {
+        strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5) * -1);
+      }
+      else {
+        strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
+      }
     }
 
     // Grabber system

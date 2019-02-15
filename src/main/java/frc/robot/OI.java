@@ -48,4 +48,13 @@ public class OI {
     public boolean get_RampUp() {
         return spaghetticon.getRawButton(6);
     }
+    public int TurnThing() {
+        return spaghetticon.getPOV();
+    }
+    public boolean IsRight() {
+        return spaghetticon.getPOV() == 90;
+    }
+    public boolean IsLeft() {
+        return spaghetticon.getPOV() == 270;
+    }
 }
