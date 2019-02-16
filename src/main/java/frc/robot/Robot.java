@@ -110,6 +110,7 @@ public class Robot extends TimedRobot {
 
     pigeon.setYaw(0);
     pigeon.setFusedHeading(0);
+    GraspAngle = 0;
   }
 
   /**
@@ -124,6 +125,7 @@ public class Robot extends TimedRobot {
     case kDefaultAuto:
     default:
       // Put default auto code here
+      teleopPeriodic();
       break;
     }
   }
@@ -131,7 +133,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     super.teleopInit();
-    GraspAngle = 0;
   }
 
   /**
@@ -181,9 +182,6 @@ public class Robot extends TimedRobot {
       SmartDashboard.putString("Drive Mode", "Hold Angle");
       SmartDashboard.putNumber("Adjust Output", Adjust);
       SmartDashboard.putNumber("Adjusted Yaw", Pigeonface);
-      //System.out.printf("Pigeonface = %f\n", Pigeonface);
-      //System.out.printf("GraspAngle = %f\n", GraspAngle);
-      //System.out.printf("Adjust = %f\n", Adjust);
     } else if (Operation.get_Turnbutton()) {
       strafeDrive.AntiStrafe(Operation.get_Yaxis() * rileyguy04);
       SmartDashboard.putString("Drive Mode", "Anti-Strafe");
