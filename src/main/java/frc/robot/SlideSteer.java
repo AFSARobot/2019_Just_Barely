@@ -70,7 +70,7 @@ public class SlideSteer extends RobotDriveBase {
         right_forward.set(0);
         front_side.set(0);
         back_side.set(0);
-
+        feedWatchdog();
     }
 
     @Override

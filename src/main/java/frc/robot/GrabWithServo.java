@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class GrabWithServo {
     private Servo servoLeft, servoRight;
@@ -25,11 +26,15 @@ public class GrabWithServo {
         currentState = State.grabbed;
         servoLeft.set(prefs.getDouble("GrabAngleCollectLeft", 0.5));
         servoRight.set(prefs.getDouble("GrabAngleCollectRight", 0.5));
+        SmartDashboard.putNumber("Left Grab Servo", prefs.getDouble("GrabAngleCollectLeft", 0.5));
+        SmartDashboard.putNumber("Right Grab Servo", prefs.getDouble("GrabAngleCollectRight", 0.5));
     }
 
     public void release() {
         currentState = State.released;
         servoLeft.set(prefs.getDouble("GrabAngleReleaseLeft", 0.5));
         servoRight.set(prefs.getDouble("GrabAngleReleaseRight", 0.5));
+        SmartDashboard.putNumber("Left Grab Servo", prefs.getDouble("GrabAngleReleaseLeft", 0.5));
+        SmartDashboard.putNumber("Right Grab Servo", prefs.getDouble("GrabAngleReleaseRight", 0.5));
     }
 }

@@ -6,19 +6,19 @@ public class OI {
     public Joystick spaghetticon = new Joystick(0);
 
     public double get_Yaxis() {
-        return DeadBits(spaghetticon.getY());
+        return DeadBits(spaghetticon.getRawAxis(1));
     }
 
     public double get_Xaxis() {
-        return DeadBits(spaghetticon.getX());
+        return DeadBits(spaghetticon.getRawAxis(0));
     }
 
     public double get_Zaxis() {
-        return DeadBits(spaghetticon.getZ());
+        return DeadBits(spaghetticon.getRawAxis(2));
     }
 
     public double get_Slider() {
-        return spaghetticon.getThrottle();
+        return spaghetticon.getRawAxis(3);
     }
 
     public boolean get_Turnbutton() {
@@ -27,7 +27,7 @@ public class OI {
 
     public boolean get_GrabButton()
     {
-        return spaghetticon.getTriggerPressed();
+        return spaghetticon.getRawButtonPressed(1);
     }
 
     public boolean get_FullDriveToggle() {

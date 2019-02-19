@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
   private static double Lethalgains;
   private static double GraspAngle;
   private static double rileyguy04;
+
   // WPI_TalonSRX
   /**
    * This function is run when the robot is first started up and should be used
@@ -68,7 +69,8 @@ public class Robot extends TimedRobot {
     Lethalgains = Preferences.getInstance().getDouble("Turn Dgain", 1);
     GraspAngle = 0;
     rileyguy04 = Preferences.getInstance().getDouble("Twist-Turn Sensitivity", 1);
-
+    pigeon.setYaw(0);
+    pigeon.setFusedHeading(0);
   }
 
   /**
@@ -104,12 +106,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
+    // m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    // System.out.println("Auto selected: " + m_autoSelected);
 
-    pigeon.setYaw(0);
-    pigeon.setFusedHeading(0);
+    // pigeon.setYaw(0);
+    // pigeon.setFusedHeading(0);
     GraspAngle = 0;
   }
 
@@ -118,16 +120,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-    case kCustomAuto:
-      // Put custom auto code here
-      break;
-    case kDefaultAuto:
-    default:
-      // Put default auto code here
-      teleopPeriodic();
-      break;
-    }
+    periodic();
   }
 
   @Override
@@ -140,6 +133,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    periodic();
+  }
+
+  private void periodic() {
     // Drive System
     if (Operation.get_FullDriveToggle()) {
       InFullDriveMode = !InFullDriveMode;
@@ -163,21 +160,21 @@ public class Robot extends TimedRobot {
         GraspAngle = 360;
       }
       double Pigeonface = ypr[0];
-      System.out.printf("Pigeon Yaw = %f\n", Pigeonface);
+      // System.out.printf("Pigeon Yaw = %f\n", Pigeonface);
       while (Pigeonface > 360) {
         Pigeonface -= 360;
       }
-      while (Pigeonface <0) {
+      while (Pigeonface < 0) {
         Pigeonface += 360;
       }
       double Adjust = Pigeonface - GraspAngle;
       if (Pigeonface > 180) {
         Adjust = -360 + Pigeonface;
       }
-      //System.out.printf("Error Angle = %f\n", Adjust);
+      // System.out.printf("Error Angle = %f\n", Adjust);
       Adjust /= 180;
       Adjust *= Sickgains;
-      //Adjust -= Dps[2]*Lethalgains;
+      // Adjust -= Dps[2]*Lethalgains;
       strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Adjust);
       SmartDashboard.putString("Drive Mode", "Hold Angle");
       SmartDashboard.putNumber("Adjust Output", Adjust);
@@ -188,16 +185,19 @@ public class Robot extends TimedRobot {
     } else {
       SmartDashboard.putString("Drive Mode", "Strafe");
       if (Operation.IsRight()) {
-      strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5));
-      }
-      else if (Operation.IsLeft()) {
+        strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5));
+      } else if (Operation.IsLeft()) {
         strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5) * -1);
-      }
-      else {
+      } else {
         strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
       }
     }
 
+    driveGrabber();
+    driveRamp();
+  }
+
+  private void driveGrabber() {
     // Grabber system
     if (Operation.get_GrabButton()) {
       if (grabber.currentState == GrabWithServo.State.released) {
@@ -211,13 +211,14 @@ public class Robot extends TimedRobot {
       GrabServoRight.set(Operation.get_Slider());
 
     }
+  }
+
+  private void driveRamp() {
     if (Operation.get_RampUp()) {
       sharpIncline.extend();
-    }
-    else if (Operation.get_RampDown()) {
+    } else if (Operation.get_RampDown()) {
       sharpIncline.retract();
-    }
-    else {
+    } else {
       sharpIncline.stopMotor();
     }
   }
