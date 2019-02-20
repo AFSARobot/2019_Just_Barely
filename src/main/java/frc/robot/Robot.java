@@ -195,6 +195,20 @@ public class Robot extends TimedRobot {
 
     driveGrabber();
     driveRamp();
+    driveElevator();
+  }
+
+  private void driveElevator()
+  {
+    if (Operation.get_LiftUpButton()){
+      elevator.Raise();
+    }
+    else if (Operation.get_LiftDownButton()) {
+      elevator.Lower();
+    }
+    else {
+      elevator.stopMotor();
+    }
   }
 
   private void driveGrabber() {
@@ -214,12 +228,20 @@ public class Robot extends TimedRobot {
   }
 
   private void driveRamp() {
-    if (Operation.get_RampUp()) {
-      sharpIncline.extend();
-    } else if (Operation.get_RampDown()) {
-      sharpIncline.retract();
+    if (Operation.get_RampBackUp()) {
+      sharpIncline.extendBack();
+    } else if (Operation.get_RampBackDown()) {
+      sharpIncline.retractBack();
     } else {
-      sharpIncline.stopMotor();
+      sharpIncline.stopBack();
+    }
+
+    if (Operation.get_RampFrontUp()) {
+      sharpIncline.extendFront();
+    } else if (Operation.get_RampFrontDown()) {
+      sharpIncline.retractFront();
+    } else {
+      sharpIncline.stopFront();
     }
   }
 

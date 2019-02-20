@@ -22,7 +22,7 @@ public class OI {
     }
 
     public boolean get_Turnbutton() {
-        return spaghetticon.getRawButton(3);
+        return spaghetticon.getRawButton(2);
     }
 
     public boolean get_GrabButton()
@@ -42,11 +42,17 @@ public class OI {
         }
         return 0;
     }
-    public boolean get_RampDown() {
+    public boolean get_RampBackDown() {
         return spaghetticon.getRawButton(5);
     }
-    public boolean get_RampUp() {
+    public boolean get_RampBackUp() {
         return spaghetticon.getRawButton(6);
+    }
+    public boolean get_RampFrontDown() {
+        return spaghetticon.getRawButton(3);
+    }
+    public boolean get_RampFrontUp() {
+        return spaghetticon.getRawButton(4);
     }
     public int TurnThing() {
         return spaghetticon.getPOV();
@@ -56,5 +62,15 @@ public class OI {
     }
     public boolean IsLeft() {
         return spaghetticon.getPOV() == 270;
+    }
+
+    public boolean get_LiftUpButton()
+    {
+        return spaghetticon.getRawButton(11);
+    }
+
+    public boolean get_LiftDownButton()
+    {
+        return spaghetticon.getRawButton(12);
     }
 }
