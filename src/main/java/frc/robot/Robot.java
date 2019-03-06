@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
   private static double Lethalgains;
   private static double GraspAngle;
   private static double rileyguy04;
-
+  private static double GrabAngle;
   // WPI_TalonSRX
   /**
    * This function is run when the robot is first started up and should be used
@@ -68,6 +68,7 @@ public class Robot extends TimedRobot {
     Sickgains = Preferences.getInstance().getDouble("Turn Pgain", 1);
     Lethalgains = Preferences.getInstance().getDouble("Turn Dgain", 1);
     GraspAngle = 0;
+    GrabAngle = 0;
     rileyguy04 = Preferences.getInstance().getDouble("Twist-Turn Sensitivity", 1);
     pigeon.setYaw(0);
     pigeon.setFusedHeading(0);
@@ -184,18 +185,50 @@ public class Robot extends TimedRobot {
       SmartDashboard.putString("Drive Mode", "Anti-Strafe");
     } else {
       SmartDashboard.putString("Drive Mode", "Strafe");
+      double yaw = getYaw();
       if (Operation.IsRight()) {
         strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5));
+        GrabAngle = yaw;
       } else if (Operation.IsLeft()) {
         strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5) * -1);
+        GrabAngle = yaw;
       } else {
+      if (Preferences.getInstance().getBoolean("Use Pigeon",true)){
+        double Adjust = yaw - GrabAngle;
+      if (yaw > 180) {
+        Adjust = -360 + yaw;
+      }
+      System.out.printf("Error Angle = %f\n", Adjust);
+      System.out.printf("Yaw = %f\n", yaw);
+      System.out.printf("Grab Angle = %f\n", GrabAngle);
+      Adjust /= 180;
+      Adjust *= Sickgains;
+      // Adjust -= Dps[2]*Lethalgains;
+        strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), -Adjust);
+      } 
+      else {
         strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
+      }
       }
     }
 
     driveGrabber();
     driveRamp();
     driveElevator();
+  }
+
+  public double getYaw()
+  {
+    double[] ypr = new double[3];
+    pigeon.getYawPitchRoll(ypr);
+    double Pigeonface = ypr[0];
+    while (Pigeonface > 360) {
+      Pigeonface -= 360;
+    }
+    while (Pigeonface < 0) {
+      Pigeonface += 360;
+    }
+    return Pigeonface;
   }
 
   private void driveElevator()
