@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
   private static double GraspAngle;
   private static double rileyguy04;
   private static double GrabAngle;
+
   // WPI_TalonSRX
   /**
    * This function is run when the robot is first started up and should be used
@@ -59,7 +60,7 @@ public class Robot extends TimedRobot {
     InFullDriveMode = false;
     HoldAngleDrive = false;
     strafeDrive = new SlideSteer(s1, s2, s3, s4);
-    CameraServer.getInstance().startAutomaticCapture();
+    // CameraServer.getInstance().startAutomaticCapture();
     GrabServoLeft = new Servo(5);
     GrabServoRight = new Servo(4);
     grabber = new GrabWithServo(GrabServoLeft, GrabServoRight);
@@ -72,6 +73,13 @@ public class Robot extends TimedRobot {
     rileyguy04 = Preferences.getInstance().getDouble("Twist-Turn Sensitivity", 1);
     pigeon.setYaw(0);
     pigeon.setFusedHeading(0);
+  }
+
+  @Override
+  public void disabledPeriodic() {
+    strafeDrive.stopMotor();
+    sharpIncline.stopMotor();
+    elevator.stopMotor();
   }
 
   /**
@@ -139,12 +147,33 @@ public class Robot extends TimedRobot {
 
   private void periodic() {
     // Drive System
+    driveRobot();
+    driveGrabber();
+    driveRamp();
+    driveElevator();
+  }
+
+  public double getYaw() {
+    double[] ypr = new double[3];
+    pigeon.getYawPitchRoll(ypr);
+    double Pigeonface = ypr[0];
+    while (Pigeonface > 360) {
+      Pigeonface -= 360;
+    }
+    while (Pigeonface < 0) {
+      Pigeonface += 360;
+    }
+    return Pigeonface;
+  }
+
+  private void driveRobot() {
     if (Operation.get_FullDriveToggle()) {
       InFullDriveMode = !InFullDriveMode;
     }
     if (Operation.get_HoldAngleDrive()) {
       HoldAngleDrive = !HoldAngleDrive;
     }
+    
     if (InFullDriveMode == true) {
       strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), Operation.get_Zaxis() * rileyguy04);
       SmartDashboard.putString("Drive Mode", "Full Drive");
@@ -193,53 +222,34 @@ public class Robot extends TimedRobot {
         strafeDrive.FullDrive(0, Operation.get_Yaxis(), Preferences.getInstance().getDouble("Strafe Turn", 0.5) * -1);
         GrabAngle = yaw;
       } else {
-      if (Preferences.getInstance().getBoolean("Use Pigeon",true)){
-        double Adjust = yaw - GrabAngle;
-      if (yaw > 180) {
-        Adjust = -360 + yaw;
-      }
-      System.out.printf("Error Angle = %f\n", Adjust);
-      System.out.printf("Yaw = %f\n", yaw);
-      System.out.printf("Grab Angle = %f\n", GrabAngle);
-      Adjust /= 180;
-      Adjust *= Sickgains;
-      // Adjust -= Dps[2]*Lethalgains;
-        strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), -Adjust);
-      } 
-      else {
-        strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
-      }
+        if (Preferences.getInstance().getBoolean("Use Pigeon", true)) {
+          double Adjust = yaw - GrabAngle;
+          if (Adjust > 180) {
+            Adjust = -360 + Adjust;
+          }
+          if (Adjust < -180) {
+            Adjust = 360 + Adjust;
+          }
+          SmartDashboard.putNumber("Debug Error Angle", Adjust);
+          SmartDashboard.putNumber("Debug Yaw", yaw);
+          SmartDashboard.putNumber("Debug Target Angle", GrabAngle);
+          Adjust /= 180;
+          Adjust *= Sickgains;
+          // Adjust -= Dps[2]*Lethalgains;
+          strafeDrive.FullDrive(Operation.get_Xaxis(), Operation.get_Yaxis(), -Adjust);
+        } else {
+          strafeDrive.DriveFunction(Operation.get_Xaxis(), Operation.get_Yaxis());
+        }
       }
     }
-
-    driveGrabber();
-    driveRamp();
-    driveElevator();
   }
 
-  public double getYaw()
-  {
-    double[] ypr = new double[3];
-    pigeon.getYawPitchRoll(ypr);
-    double Pigeonface = ypr[0];
-    while (Pigeonface > 360) {
-      Pigeonface -= 360;
-    }
-    while (Pigeonface < 0) {
-      Pigeonface += 360;
-    }
-    return Pigeonface;
-  }
-
-  private void driveElevator()
-  {
-    if (Operation.get_LiftUpButton()){
+  private void driveElevator() {
+    if (Operation.get_LiftUpButton()) {
       elevator.Raise();
-    }
-    else if (Operation.get_LiftDownButton()) {
+    } else if (Operation.get_LiftDownButton()) {
       elevator.Lower();
-    }
-    else {
+    } else {
       elevator.stopMotor();
     }
   }

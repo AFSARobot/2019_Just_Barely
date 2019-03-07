@@ -66,11 +66,11 @@ public class OI {
 
     public boolean get_LiftUpButton()
     {
-        return spaghetticon.getRawButton(11);
+        return spaghetticon.getRawButton(1);
     }
 
     public boolean get_LiftDownButton()
     {
-        return spaghetticon.getRawButton(12);
+        return spaghetticon.getRawButton(2);
     }
 }
